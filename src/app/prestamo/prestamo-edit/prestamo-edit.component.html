@@ -1,0 +1,31 @@
+<!--<div class="container">
+    @if (prestamo.id) {
+        <h1>Modificar prestamo</h1>
+    } @else {
+        <h1>Crear prestamo</h1>
+    }
+
+    <form>
+        <mat-form-field>
+            <mat-label>Identificador</mat-label>
+            <input type="text" matInput placeholder="Identificador" [(ngModel)]="prestamo.id" name="id" disabled>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>fecha_prestamo</mat-label>
+            <input type="text" matInput placeholder="fecha_prestamo" [(ngModel)]="prestamo.fecha_prestamo" name="fecha_prestamo" required>
+            <mat-error>La fecha inicio dl prestamo no puede estar vacío</mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>fecha_devolucion</mat-label>
+            <input type="text" matInput placeholder="Fecha devolucion" [(ngModel)]="prestamo.fecha_devolucion" name="fecha_devolucion" required>
+            <mat-error>La fecha de devolucion del prestamo no puede estar vacía</mat-error>
+        </mat-form-field>
+    </form>
+
+    <div class="buttons">
+        <button mat-stroked-button (click)="onClose()">Cerrar</button>
+        <button mat-flat-button color="primary" (click)="onSave()">Guardar</button>
+    </div>
+</div>

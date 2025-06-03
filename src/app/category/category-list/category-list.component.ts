@@ -19,7 +19,7 @@ import { DialogConfirmationComponent } from '../../core/dialog-confirmation/dial
         MatButtonModule,
         MatIconModule,
         MatTableModule,
-        CommonModule
+        CommonModule,
     ],
     templateUrl: './category-list.component.html',
     styleUrls: ['./category-list.component.scss']
@@ -38,6 +38,8 @@ export class CategoryListComponent implements OnInit{
             categories => this.dataSource.data = categories
         );
     }
+  
+
     createCategory() {    
         const dialogRef = this.dialog.open(CategoryEditComponent, {
           data: {}
@@ -56,6 +58,8 @@ export class CategoryListComponent implements OnInit{
           this.ngOnInit();
         });
       }  
+    
+    
       deleteCategory(category: Category) {    
         const dialogRef = this.dialog.open(DialogConfirmationComponent, {
           data: { title: "Eliminar categoría", description: "Atención si borra la categoría se perderán sus datos.<br> ¿Desea eliminar la categoría?" }
@@ -68,6 +72,5 @@ export class CategoryListComponent implements OnInit{
             }); 
           }
         });
-      }
-     
-}
+      }  
+     }

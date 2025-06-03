@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { Category } from './model/Category';
+import { CATEGORY_DATA } from './model/mock-categories';
 
 @Injectable({
 providedIn: 'root'
@@ -15,6 +16,7 @@ export class CategoryService {
     private baseUrl = 'http://localhost:8080/category';
 
     getCategories(): Observable<Category[]> {
+        //return of(CATEGORY_DATA)
         return this.http.get<Category[]>(this.baseUrl);
     }
 
