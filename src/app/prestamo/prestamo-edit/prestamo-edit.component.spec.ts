@@ -1,4 +1,4 @@
-/*import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PrestamoEditComponent } from './prestamo-edit.component';
 
@@ -20,4 +20,4 @@ describe('PrestamoEditComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-});*/
+});

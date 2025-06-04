@@ -1,4 +1,4 @@
-/*import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -11,10 +11,10 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { Game } from '../../game/model/Game';
-import { Client } from '../../client/model/Client';
-import { ClientService } from '../../client/client.service';
-import { GameService } from '../../game/game.service';
+//import { Game } from '../../game/model/Game';
+//import { Client } from '../../client/model/Client';
+//import { ClientService } from '../../client/client.service';
+//import { GameService } from '../../game/game.service';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -32,30 +32,13 @@ export class PrestamoListComponent implements OnInit {
     pageNumber: number = 0;
     pageSize: number = 5;
     totalElements: number = 0;
-    games:Game[];
-    clients:Client[];
-    filterGame: Game;
-    filterClien: Client;
 
     dataSource = new MatTableDataSource<Prestamo>();
-    displayedColumns: string[] = ['id', 'fecha_prestamo', 'fecha_devolucion', 'game', 'client', 'action'];
+    displayedColumns: string[] = ['id', 'game', 'client','fecha_prestamo', 'fecha_devolucion', 'action'];
 
-    constructor(private prestamoService: PrestamoService, 
-        private clientService: ClientService,
-        private gameService:GameService,
-        public dialog: MatDialog) {}
+    constructor(private prestamoService: PrestamoService, public dialog: MatDialog) {}
 
-    ngOnInit(): void { 
-        /*this.prestamoService.getPrestamo().subscribe((prestamos)) => (this.prestamos = prestamos));
-
-        this.prestamoService
-        .getClients()
-        .subscribe((clients)) => (this.clients = clients));
-
-        .getGames()
-        .subscribe((games)) => (this.games = games));
-    
-        
+    ngOnInit(): void {
         this.loadPage();
     }
 
@@ -94,9 +77,9 @@ export class PrestamoListComponent implements OnInit {
         });
     }
 
-    editPrestamo(author: Prestamo) {
+    editPrestamo(prestamo: Prestamo) {
         const dialogRef = this.dialog.open(PrestamoEditComponent, {
-            data: { prestamo: Prestamo },
+            data: { prestamo: prestamo },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
@@ -121,4 +104,4 @@ export class PrestamoListComponent implements OnInit {
             }
         });
     }
-}*/
+}

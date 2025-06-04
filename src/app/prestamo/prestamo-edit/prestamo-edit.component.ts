@@ -1,4 +1,4 @@
-/*import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PrestamoService } from '../prestamo.service';
 import { Prestamo } from '../model/Prestamo';
@@ -36,4 +36,4 @@ export class PrestamoEditComponent implements OnInit {
     onClose() {
         this.dialogRef.close();
     }
-}*/
+}

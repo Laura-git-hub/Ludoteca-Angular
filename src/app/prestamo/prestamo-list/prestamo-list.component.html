@@ -1,10 +1,20 @@
-<!-- <div class="container">
+<div class="container">
     <h1>Listado de Préstamos</h1>
 
     <mat-table [dataSource]="dataSource"> 
         <ng-container matColumnDef="id">
             <mat-header-cell *matHeaderCellDef> Identificador </mat-header-cell>
             <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="game">
+            <mat-header-cell *matHeaderCellDef> Nombre del Juego  </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.fecha_prestamo}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="client">
+            <mat-header-cell *matHeaderCellDef> Nombre del Cliente  </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.fecha_prestamo}} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="fecha_prestamo">

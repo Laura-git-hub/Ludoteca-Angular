@@ -1,4 +1,4 @@
-/*import { Pageable } from "../../core/model/page/Pageable";
+import { Pageable } from "../../core/model/page/Pageable";
 import { Prestamo } from "./Prestamo";
 
 export class PrestamoPage {
@@ -7,4 +7,4 @@ export class PrestamoPage {
     totalElements: number;
 }
 
-export { Pageable };*/
+//export { Pageable };
