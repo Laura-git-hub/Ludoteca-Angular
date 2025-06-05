@@ -16,11 +16,8 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class ClientEditComponent implements OnInit {
     //client: ClipboardEventInit;
-    client: Client = {
-        id: 0,
-        name: ''
-      };
-    
+    client: Client 
+      
     constructor(
         public dialogRef: MatDialogRef<ClientEditComponent>,
         @Inject(MAT_DIALOG_DATA) public data: {client : Client},

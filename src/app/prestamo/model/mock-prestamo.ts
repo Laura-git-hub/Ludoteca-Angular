@@ -38,4 +38,3 @@ export const PRESTAMO_DATA:PrestamoPage = {
     },
     totalElements: 6,
 };
-

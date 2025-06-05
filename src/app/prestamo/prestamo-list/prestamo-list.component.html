@@ -1,5 +1,71 @@
 <div class="container">
     <h1>Listado de Préstamos</h1>
+    <div class="filters">
+        <form>
+          <!-- Filtro por título del juego -->
+          <mat-form-field appearance="fill">
+            <mat-label>Título del juego</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="filterControl"
+              placeholder="Título del juego"
+            />
+          </mat-form-field>
+      
+          <!-- Filtro por nombre del cliente -->
+          <mat-form-field appearance="fill">
+            <mat-label>Nombre del cliente</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="clientFilterControl"
+              placeholder="Nombre del cliente"
+            />
+          </mat-form-field>
+      
+          <!-- Filtro por fecha del préstamo -->
+          <mat-form-field appearance="fill">
+            <mat-label>Fecha del préstamo</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              [formControl]="dateFilterControl"
+              placeholder="Selecciona una fecha"
+            />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </form>
+
+        <div class="buttons">
+            <button mat-stroked-button (click)="onCleanFilter()">Limpiar</button>
+            <button mat-stroked-button (click)="onSearch()">Filtrar</button>
+        </div>
+
+      </div>
+      
+      <!-- Listado visual de préstamos -->
+      <div class="prestamo-list">
+        @if (filteredPrestamos.length > 0) {
+          @for (prestamo of filteredPrestamos; track trackById) {
+            <app-prestamo-item
+              [prestamo]="prestamo"
+              (edit)="editPrestamo(prestamo)"
+              (delete)="deletePrestamo(prestamo)"
+            ></app-prestamo-item>
+          }
+        } @else {
+          <div class="no-results">
+            No se encontraron préstamos con ese título, cliente o fecha.
+          </div>
+        }
+        
+      </div>
+      
+
+   
+
 
     <mat-table [dataSource]="dataSource"> 
         <ng-container matColumnDef="id">
