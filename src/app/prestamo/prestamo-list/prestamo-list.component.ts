@@ -1,23 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { PrestamoEditComponent } from '../prestamo-edit/prestamo-edit.component';
-import { PrestamoService } from '../prestamo.service';
-import { Prestamo } from '../model/Prestamo';
-import { Pageable } from '../../core/model/page/Pageable';
-import { DialogConfirmationComponent } from '../../core/dialog-confirmation/dialog-confirmation.component';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+
+import { PrestamoService } from '../prestamo.service';
+import { GameService } from '../../game/game.service';
+import { ClientService } from '../../client/client.service';
+
+import { Prestamo } from '../model/Prestamo';
+import { Game } from '../../game/model/Game';
+import { Client } from '../../client/model/Client';
 
 @Component({
   selector: 'app-prestamo-list',
@@ -25,136 +27,207 @@ import { MatNativeDateModule } from '@angular/material/core';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatIconModule,
     MatTableModule,
     MatPaginatorModule,
     MatFormFieldModule,
-    MatInputModule,
     MatSelectModule,
+    MatInputModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
   ],
   templateUrl: './prestamo-list.component.html',
-  styleUrl: './prestamo-list.component.scss',
+  styleUrls: ['./prestamo-list.component.scss']
 })
 export class PrestamoListComponent implements OnInit {
-[x: string]: any;
-  pageNumber: number = 0;
-  pageSize: number = 5;
-  totalElements: number = 0;
+  prestamoList: Prestamo[] = [];
+  displayedColumns: string[] = [
+    'id',
+    'game',
+    'client',
+    'fecha_prestamo',
+    'fecha_devolucion',
+    'actions',
+  ];
 
-  dataSource = new MatTableDataSource<Prestamo>();
-  displayedColumns: string[] = ['id', 'game', 'client', 'fecha_prestamo', 'fecha_devolucion', 'action'];
+  games: Game[] = [];
+  clients: Client[] = [];
 
-  // Filtros
-  filterControl = new FormControl('');
-  clientFilterControl = new FormControl('');
-  dateFilterControl = new FormControl<Date | null>(null);
-
-  filterTitle: string = '';
-  filterClient: string = '';
+  filterGame: Game | null = null;
+  filterClient: Client | null = null;
   filterDate: Date | null = null;
 
-  constructor(private prestamoService: PrestamoService, public dialog: MatDialog) {}
+  pageNumber = 0;
+  pageSize = 5;
+  totalElements = 0;
+
+  showNuevoPrestamo = false;
+  nuevoPrestamo: Partial<Prestamo> = {
+    id: null,
+    client: null,
+    game: null,
+    fecha_prestamo: null,
+    fecha_devolucion: null,
+  };
+
+  constructor(
+    private prestamoService: PrestamoService,
+    private gameService: GameService,
+    private clientService: ClientService
+  ) {}
 
   ngOnInit(): void {
+    this.loadGames();
+    this.loadClients();
     this.loadPage();
-
-    this.filterControl.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe(value => {
-        this.filterTitle = value || '';
-      });
-
-    this.clientFilterControl.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe(value => {
-        this.filterClient = value || '';
-      });
-
-    this.dateFilterControl.valueChanges
-      .subscribe(value => {
-        this.filterDate = value;
-      });
   }
 
-  loadPage(event?: PageEvent) {
-    const pageable: Pageable = {
-      pageNumber: this.pageNumber,
-      pageSize: this.pageSize,
-      sort: [{ property: 'id', direction: 'ASC' }],
-    };
+  loadGames(): void {
+    this.gameService.getGames().subscribe(games => (this.games = games));
+  }
 
-    if (event != null) {
-      pageable.pageSize = event.pageSize;
-      pageable.pageNumber = event.pageIndex;
+  loadClients(): void {
+    this.clientService.getClients().subscribe(clients => (this.clients = clients));
+  }
+
+  loadPage(event?: PageEvent): void {
+    if (event) {
+      console.log('Evento paginador recibido:', event);
+      this.pageSize = event.pageSize;
+      this.pageNumber = event.pageIndex;
+    } else {
+      console.log('loadPage llamado sin evento, usando:',
+        'pageNumber =', this.pageNumber,
+        'pageSize =', this.pageSize);
     }
 
-    this.prestamoService.getPrestamo(pageable).subscribe((data) => {
-      this.dataSource.data = data.content;
-      this.pageNumber = data.pageable.pageNumber;
-      this.pageSize = data.pageable.pageSize;
-      this.totalElements = data.totalElements;
+    const gameId = this.filterGame ? this.filterGame.id : undefined;
+    const clientId = this.filterClient ? this.filterClient.id : undefined;
+    const date = this.filterDate ? this.filterDate.toISOString().substring(0, 10) : undefined;
+
+    console.log('Llamando a getPrestamosFiltered con filtros:', {
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize,
+      gameId,
+      clientId,
+      date,
     });
+
+    this.prestamoService
+      .getPrestamosFiltered(
+        { pageNumber: this.pageNumber, pageSize: this.pageSize, sort: [] },
+        gameId,
+        clientId,
+        date
+      )
+      .subscribe({
+        next: (data) => {
+          console.log('Respuesta del backend:', data);
+          // Validar si la respuesta tiene paginación o solo un array
+          if (Array.isArray(data)) {
+            this.prestamoList = data;
+            this.totalElements = data.length;
+            this.pageNumber = 0;
+            // pageSize queda igual
+          } else {
+            this.prestamoList = data.content || [];
+            this.totalElements = data.totalElements || 0;
+            this.pageNumber = data.pageable?.pageNumber ?? 0;
+            this.pageSize = data.pageable?.pageSize ?? this.pageSize;
+          }
+
+          console.log('Datos actualizados en componente:', {
+            pageNumber: this.pageNumber,
+            pageSize: this.pageSize,
+            totalElements: this.totalElements,
+            prestamoListLength: this.prestamoList.length,
+          });
+        },
+        error: (error) => {
+          console.error('Error al obtener datos:', error);
+        }
+      });
   }
 
-  get filteredPrestamos(): Prestamo[] {
-    const titleFilter = this.filterTitle.toLowerCase().trim();
-    const clientFilter = this.filterClient.toLowerCase().trim();
-    const dateFilter = this.filterDate;
+  applyFilters(): void {
+    this.pageNumber = 0;
+    this.loadPage();
+  }
 
-    return this.dataSource.data.filter(prestamo =>
-      prestamo?.game?.title?.toLowerCase().includes(titleFilter) &&
-      prestamo?.client?.name?.toLowerCase().includes(clientFilter) &&
-      (!dateFilter || new Date(prestamo.fecha_prestamo).toDateString() === dateFilter.toDateString())
+  clearFilters(): void {
+    this.filterGame = null;
+    this.filterClient = null;
+    this.filterDate = null;
+    this.pageNumber = 0;
+    this.loadPage();
+  }
+
+  toggleNuevoPrestamo(): void {
+    this.showNuevoPrestamo = !this.showNuevoPrestamo;
+
+    if (this.showNuevoPrestamo) {
+      this.nuevoPrestamo = {
+        id: null,
+        client: null,
+        game: null,
+        fecha_prestamo: null,
+        fecha_devolucion: null,
+      };
+    }
+  }
+
+  isNuevoPrestamoValid(): boolean {
+    const p = this.nuevoPrestamo;
+    return (
+      !!p.client &&
+      !!p.game &&
+      !!p.fecha_prestamo &&
+      !!p.fecha_devolucion &&
+      p.fecha_prestamo <= p.fecha_devolucion
     );
   }
 
-  trackById(index: number, item: Prestamo): number {
-    return item.id;
-  }
+  saveNuevoPrestamo(): void {
+    if (!this.isNuevoPrestamoValid()) return;
 
-  
-  onCleanFilter(): void {
-    this.filterTitle = null;
-    this.filterCategory = null;
-    this.onSearch();
-}
+    const prestamoToSave = {
+      ...this.nuevoPrestamo,
+      client: { id: this.nuevoPrestamo.client?.id },
+      game: { id: this.nuevoPrestamo.game?.id },
+    };
 
-onSearch(): void {
-    const title = this.filterTitle;
-    const categoryId =
-        this.filterCategory != null ? this.filterCategory.id : null;
-
-    this.gameService
-        .getGames(title, categoryId)
-        .subscribe((games) => (this.games = games));
-}
-
-  createPrestamo() {
-    const dialogRef = this.dialog.open(PrestamoEditComponent, { data: {} });
-    dialogRef.afterClosed().subscribe(() => this.ngOnInit());
-  }
-
-  editPrestamo(prestamo: Prestamo) {
-    const dialogRef = this.dialog.open(PrestamoEditComponent, { data: { prestamo } });
-    dialogRef.afterClosed().subscribe(() => this.ngOnInit());
-  }
-
-  deletePrestamo(prestamo: Prestamo) {
-    const dialogRef = this.dialog.open(DialogConfirmationComponent, {
-      data: {
-        title: 'Eliminar préstamo',
-        description: 'Atención si borra el préstamo se perderán sus datos.<br> ¿Desea eliminar el préstamo?',
+    this.prestamoService.savePrestamo(prestamoToSave as Prestamo).subscribe({
+      next: () => {
+        this.toggleNuevoPrestamo();
+        this.loadPage();
       },
+      error: err => alert('Error guardando el préstamo: ' + err.message),
     });
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.prestamoService.deletePrestamo(prestamo.id).subscribe(() => this.ngOnInit());
-      }
-    });
+  cancelNuevoPrestamo(): void {
+    this.showNuevoPrestamo = false;
+  }
+
+  deletePrestamo(prestamo: Prestamo): void {
+    if (confirm('¿Seguro que deseas eliminar este préstamo?')) {
+      this.prestamoService.deletePrestamo(prestamo.id!).subscribe(() => {
+        this.loadPage();
+      });
+    }
+  }
+
+  getGameTitle(gameId: number | undefined): string {
+    if (!gameId) return 'Desconocido';
+    const game = this.games.find(g => g.id === gameId);
+    return game ? game.title : 'Desconocido';
+  }
+
+  getClientName(clientId: number | undefined): string {
+    if (!clientId) return 'Desconocido';
+    const client = this.clients.find(c => c.id === clientId);
+    return client ? client.name : 'Desconocido';
   }
 }
