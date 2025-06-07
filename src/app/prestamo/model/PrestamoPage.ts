@@ -7,4 +7,4 @@ export class PrestamoPage {
     totalElements: number;
 }
 
-export { Pageable };
+//export { Pageable };
